@@ -815,27 +815,33 @@ def update_search(search_frame, search_term):
 
     list_of_recommendations = []
     def load_recommendation(book):
-
-        with urllib.request.urlopen(book["thumbnail"]) as u:
-            raw_data = u.read()
-
-        # Replace Default "No Image Found" with provided one
-        if raw_data == no_image_raw_data:
-            image = create_rounded_image(os.path.join(data_loc, "Images", "No Image Found.png"), 35)
-        else:
-            image = create_rounded_image(io.BytesIO(raw_data), 35)
-
-        recommendation = ctk.CTkButton(search_frame, text=book["title"][:search_page_cap], font=("Helvetica", h/65, "bold"), image=ctk.CTkImage(dark_image=image, size=(w/8.53, h/4.32)), fg_color="#0f0f0f", hover_color="#1f1f1f", compound=ctk.TOP, anchor="w", width=w/8.53 + 25, height=h/4.32 + 65, command=lambda book=book: get_book(search_frame, book, search_term))
-        recommendation.bind("<Enter>", lambda event, recommendation=recommendation: start_marquee(False, recommendation, book["title"]+"      ", speed=150))
-        recommendation.bind("<Leave>", lambda event, recommendation=recommendation: stop_marquee(False, recommendation, book["title"]))
+        
         try:
-            thread = threading.Thread(target=lambda search_text=search_text: kill_recommendation(recommendation, search_term, search_text))
-            thread.start()
+            with urllib.request.urlopen(book["thumbnail"]) as u:
+                raw_data = u.read()
 
-            list_of_recommendations.append(recommendation)
+            # Replace Default "No Image Found" with provided one
+            if raw_data == no_image_raw_data:
+                image = create_rounded_image(os.path.join(data_loc, "Images", "No Image Found.png"), 35)
+            else:
+                image = create_rounded_image(io.BytesIO(raw_data), 35)
 
+            recommendation = ctk.CTkButton(search_frame, text=book["title"][:search_page_cap], font=("Helvetica", h/65, "bold"), image=ctk.CTkImage(dark_image=image, size=(w/8.53, h/4.32)), fg_color="#0f0f0f", hover_color="#1f1f1f", compound=ctk.TOP, anchor="w", width=w/8.53 + 25, height=h/4.32 + 65, command=lambda book=book: get_book(search_frame, book, search_term))
+            recommendation.bind("<Enter>", lambda event, recommendation=recommendation: start_marquee(False, recommendation, book["title"]+"      ", speed=150))
+            recommendation.bind("<Leave>", lambda event, recommendation=recommendation: stop_marquee(False, recommendation, book["title"]))
+            try:
+                thread = threading.Thread(target=lambda search_text=search_text: kill_recommendation(recommendation, search_term, search_text))
+                thread.start()
+
+                list_of_recommendations.append(recommendation)
+
+            except:
+                pass
         except:
-            pass
+            try:
+                recommendation.destroy()
+            except:
+                pass
 
     # Use Threading to Load Recommendations Simultaneously
 
