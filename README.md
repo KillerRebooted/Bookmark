@@ -11,6 +11,10 @@ This Application is to help keep track of your Reading History.
 - Make Multiple Profiles
 - Display Overall Reading Stats
 
+## Setup
+
+Go to Releases on the Righ-Hand-Side and Download the Latest Version of the `.rar` file. Extract the contents in a Folder and Run the Executable. Happy Reading!
+
 ## Usage/Examples
 
 Use the `Bookmark.py` to Run the Application
