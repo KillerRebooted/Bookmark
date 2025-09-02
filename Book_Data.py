@@ -19,7 +19,7 @@ def create_table(cursor):
         publisher TEXT,
         publish_date TEXT,
         categories TEXT,
-        page_count TEXT,
+        page_count DECIMAL,
         description TEXT,
         maturity_rating TEXT
     )
@@ -155,4 +155,4 @@ def longest_completed(account_loc):
         return None
 
 if __name__ == "__main__":
-    print(read_data(r"D:\Repositories\Dev-Chronicles\Python\Prototype\Bookmark\Data\Accounts\a", "Reading", 1))
+    print(longest_completed(r"D:\Repositories\Bookmark\Data\Accounts\TestAccount"))
