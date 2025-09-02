@@ -31,6 +31,8 @@ After Registering, go back to `LOGIN` and use the Registered Credentials and cli
 
 Click on `+` Icon and Search the Book by using it's Name or ISBN-10/13 Number and wait for a few seconds. Here the Search Term being used is `One Punch Man` and upto 10 results are displayed.
 
+![Book Actions Demo](https://github.com/KillerRebooted/Bookmark/blob/main/README%20Images/Book%20Actions%20Demo.png)
+
 Choose a Book and Click on it. Hover over the Image to display various actions and choose the desired one.
 
 Press `Escape` to close the Menu
@@ -46,6 +48,8 @@ Click on the Book to View the Book Info. Click on any other action to move it to
 Click on the Arrow Keys at the bottom of the yab to switch between pages and use the Search Bar at the top to look for a specific Book within the tab.
 
 ### Stats Tab
+
+![Stats Tab Demo](https://github.com/KillerRebooted/Bookmark/blob/main/README%20Images/Stats%20Tab%20Demo.png)
 
 Check out Reading Stats in the Stats Tab such as Books Read/Completed, Pages Read etc. along with the Longest Book Read.
 
