@@ -401,10 +401,13 @@ def quit_logout_confirmation(logout_confirmation, widgets):
     widgets[1].configure(state="normal", fg_color="#9a4cfa")
     widgets[2].configure(state="normal")
     for widget in widgets[0].tab(widgets[0].get()).winfo_children():
-        if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
-            widget.configure(state="normal", fg_color="#9a4cfa")
-        else:
-            widget.configure(state="normal")
+        try:
+            if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
+                widget.configure(state="normal", fg_color="#9a4cfa")
+            else:
+                widget.configure(state="normal")
+        except:
+            pass
     win.bind("<Escape>", quit_application)
 
 # --> Other Functions
@@ -666,10 +669,13 @@ def book_collection(user):
         widgets[1].configure(state="disabled", fg_color="#3a3a3a", text_color_disabled="#777777")
         widgets[2].configure(state="disabled")
         for widget in widgets[0].tab(widgets[0].get()).winfo_children():
-            if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
-                widget.configure(state="disabled", fg_color="#3a3a3a", text_color_disabled="#777777")
-            else:
-                widget.configure(state="disabled")
+            try:
+                if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
+                    widget.configure(state="disabled", fg_color="#3a3a3a", text_color_disabled="#777777")
+                else:
+                    widget.configure(state="disabled")
+            except:
+                pass
 
         logout_confirmation = ctk.CTkFrame(win, bg_color="#1f1f1f", fg_color="#0f0f0f", corner_radius=h/45)
         logout_confirmation.place(relx=0.5, rely=0.49, relheight=0.15, relwidth=0.25, anchor=ctk.CENTER)
