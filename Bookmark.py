@@ -3,6 +3,7 @@ import keyring
 from argon2 import PasswordHasher
 from time import sleep
 import os
+import sys
 import io
 import urllib.request
 import threading
@@ -18,8 +19,18 @@ ctk.deactivate_automatic_dpi_awareness()
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
-# Path to Data Folder of the Application
-data_loc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Data")
+# Path to Folder of the Application
+if getattr(sys, 'frozen', False):
+    # If File Running as a bundled Executable
+    application_path = os.path.dirname(sys.executable)
+else:
+    # If File Running as a normal Script
+    application_path = os.path.dirname(os.path.abspath(__file__))
+
+data_loc = os.path.join(application_path, "Data")
+
+# Create Accounts Folder if doesn't exist
+os.makedirs(os.path.join(data_loc, "Accounts"), exist_ok=True)
 
 # Service Name under which User Credentials are saved
 SERVICE_NAME = "Bookmark"
