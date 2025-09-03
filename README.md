@@ -13,7 +13,7 @@ This Application is to help keep track of your Reading History.
 
 ## Setup
 
-Go to Releases on the Righ-Hand-Side and Download the Latest Version of the `.rar` file. Extract the contents in a Folder and Run the Executable. Happy Reading!
+Go to Releases on the Righ-Hand-Side and Download the Latest Version of the `.zip` file. Extract the contents in a Folder and Run the Executable. Happy Reading!
 
 ## Usage/Examples
 
