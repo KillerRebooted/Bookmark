@@ -5,7 +5,7 @@ Bookmark is a Python Desktop Application based on `customtkinter` to Search, Vie
 This Application is to help keep track of your Reading History.
 ## Features
 
-- Works on Mac/Windows/Linux
+- Works on Windows
 - Search Books by ISBN Number or Name
 - Save Books and their Reading Status Locally
 - Make Multiple Profiles
