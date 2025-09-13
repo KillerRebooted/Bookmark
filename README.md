@@ -64,11 +64,15 @@ Once Logged In, whenever the Application is opened, it will open the last closed
 ![Logout Demo](https://github.com/KillerRebooted/Bookmark/blob/main/README%20Images/Logout%20Demo.png)
 
 To Logout, instead of pressing `Escape`, press the `Power Off` Icon in the top left and Press `Yes`. It will go back to the Login Page which can be closed using the `Escape` or the `Close` Button.
+
+## Book API
+
+This project utilizes the free-to-use Google Books API. If an ISBN Number doesn't get a result, it's either not in the Google Database or the Internet Connection is unstable.
+
 ## Authors
 
 - [@Shreyas Nair](https://www.github.com/KillerRebooted)
 
-
 ## License
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)

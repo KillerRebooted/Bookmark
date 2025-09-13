@@ -1,5 +1,6 @@
 import requests
 import pycountry
+import re
 
 def get_language_name(code):
     language = pycountry.languages.get(alpha_2=code)
@@ -37,7 +38,8 @@ def get_book_details(search):
             if page_count in (0, ""):
                 try:
                     info_link_content = str(requests.get(book["volumeInfo"].get("infoLink", "")).content)
-                    page_count = info_link_content[info_link_content[:info_link_content.find("pages")].rfind(">")+1:info_link_content.find("pages")-1]
+                    regex_pattern = r'''<span dir=ltr>Length<\/span><\/td><td class="metadata_value"><span dir=ltr>(\d+) pages<\/span>'''
+                    page_count = re.search(regex_pattern, info_link_content).group(1)
                 except:
                     page_count = ""
             page_counts.append(str(page_count))
@@ -72,8 +74,8 @@ def get_book_details(search):
         return books
 
     # Get Search Results assuming input is an ISBN Number
-    response = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{search}").json()
-    
+    response = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{search.replace("-", "")}").json()
+
     return get_details(response)
 
 if __name__ == "__main__":
