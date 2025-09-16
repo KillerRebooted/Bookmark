@@ -13,6 +13,9 @@ from PIL import Image, ImageEnhance, ImageDraw
 from Book_Scouter import get_book_details
 from Book_Data import longest_completed, track_book, read_data, get_total_pages, total_stats
 
+# Executable Compilation Code
+# pyinstaller --onefile --windowed --icon="Data/Images/Planned.png" Bookmark.py
+
 # Ignores DPI scaling to work in Full Screen for all Systems
 ctk.deactivate_automatic_dpi_awareness()
 
@@ -28,6 +31,9 @@ else:
     application_path = os.path.dirname(os.path.abspath(__file__))
 
 data_loc = os.path.join(application_path, "Data")
+
+# Store most recent Output (if exists), including Exceptions during Application Runtime or Crash
+sys.stdout = open(os.path.join(data_loc, "logs.txt"), "w+")
 
 # Create Accounts Folder if doesn't exist
 os.makedirs(os.path.join(data_loc, "Accounts"), exist_ok=True)
@@ -518,8 +524,6 @@ def book_collection(user):
 
                 prev_widget = btn
 
-            win.update()
-
         else:
 
             filter_search.place_forget()
@@ -595,18 +599,32 @@ def book_collection(user):
 
                 info = ctk.CTkLabel(tabs.tab(category), text="No Completed Books Yet", font=("Helvetica", h/18, "bold"), text_color="#818181")
                 info.place(relx=0.5, rely=0.77, relwidth=0.958, relheight=0.145, anchor=ctk.CENTER)
+            
+        win.update()
 
     # Change Page
-    def page_change(change_qty):
+    def page_change(change_qty=0, reset=False, search_term=None):
+        
         category = tabs.get()
 
-        page_var = page_counters[category]
-        new_page_count = int(page_var.get()) + change_qty
+        # Try since the page_change function is called intially when page_counters is undefined, so skipped in first function call.
+        try:
+            page_var = page_counters[category]
 
-        if not ((new_page_count == 0) or (new_page_count > int(total_pages[category].get()))):
-            page_var.set(new_page_count)
+            if reset:
+                page_var.set(1)
 
-        update_tab([tabs, add_btn, logout_btn])
+            else:
+                update_tab([tabs, add_btn, logout_btn], search_term=search_term)
+
+                new_page_count = int(page_var.get()) + change_qty
+
+                if new_page_count in range(1, int(total_pages[category].get())+1):
+                    page_var.set(new_page_count)
+
+            update_tab([tabs, add_btn, logout_btn], search_term=search_term)
+        except:
+            pass
 
     # Create Tabular View
     tabs = ctk.CTkTabview(main_frame,
@@ -633,13 +651,25 @@ def book_collection(user):
 
     all_tabs = ["Plan To Read", "Reading", "Completed", "On Hold", "Dropped"]
 
+    # String Variable that keeps track of the Text in the Search Bar
+    search_term = ctk.StringVar()
+    search_term.trace_add('write', lambda var, index, mode: page_change(reset=True, search_term=search_term))
+
+    # Search Bar to Filter Books through Keywords
+    filter_search = ctk.CTkEntry(main_frame, text_color="#818181", fg_color="#1f1f1f", font=("Helvetica", h/42, "bold"), textvariable=search_term)
+    filter_search.place(relx=0.5, rely=0.11, relwidth=0.45, relheight=0.06, anchor=ctk.CENTER)
+
+    # Custom Placeholder Text Method as in-built doesn't work
+    search_term.set("Enter Name or ISBN No. of the Book...")
+    filter_search.bind("<FocusIn>", lambda event: [filter_search.configure(text_color="#FFFFFF"), search_term.set("")])
+
     # Setting Up default Page Count and Total Pages for each tab
     page_counters = {tab_name:ctk.StringVar(value="1") for tab_name in all_tabs}
     total_pages = {tab_name:ctk.StringVar(value="1") for tab_name in all_tabs}
 
     # Add Previous/Next Buttons and Page Counter
     for tab in all_tabs:
-        previous_button = ctk.CTkButton(tabs.tab(tab), text="◀", fg_color="#9a4cfa", bg_color="#1f1f1f", hover_color="#b87bff", font=("Helvetica", h/36, "bold"), text_color="#121212", command=lambda: page_change(-1))
+        previous_button = ctk.CTkButton(tabs.tab(tab), text="◀", fg_color="#9a4cfa", bg_color="#1f1f1f", hover_color="#b87bff", font=("Helvetica", h/36, "bold"), text_color="#121212", command=lambda: page_change(-1, search_term=search_term))
         previous_button.place(relx=0.424, rely=0.942, relwidth=0.02)
 
         page_text_info = ctk.CTkLabel(tabs.tab(tab), text="Page          of ", font=("Helvetica", h/50), text_color="#9a4cfa")
@@ -651,19 +681,11 @@ def book_collection(user):
         total_pages_counter = ctk.CTkLabel(tabs.tab(tab), textvariable=total_pages[tab], font=("Helvetica", h/50), text_color="#9a4cfa")
         total_pages_counter.place(in_=page_text_info, relx=1, rely=0, relwidth=0.4, relheight=1)
 
-        next_button = ctk.CTkButton(tabs.tab(tab), text="▶", fg_color="#9a4cfa", bg_color="#1f1f1f", hover_color="#b87bff", font=("Helvetica", h/36, "bold"), text_color="#121212", command=lambda: page_change(1))
+        next_button = ctk.CTkButton(tabs.tab(tab), text="▶", fg_color="#9a4cfa", bg_color="#1f1f1f", hover_color="#b87bff", font=("Helvetica", h/36, "bold"), text_color="#121212", command=lambda : page_change(1, search_term=search_term))
         next_button.place(in_=previous_button, relx=7.65, rely=0, relwidth=1, relheight=1)
 
     # Set Default Tab to Reading
     tabs.set("Reading")
-
-    # String Variable that keeps track of the Text in the Search Bar
-    search_term = ctk.StringVar()
-    search_term.trace_add('write', lambda var, index, mode: update_tab([tabs, add_btn, logout_btn], search_term=search_term))
-
-    # Search Bar to Filter Books through Keywords
-    filter_search = ctk.CTkEntry(main_frame, text_color="#818181", fg_color="#1f1f1f", font=("Helvetica", h/42, "bold"), textvariable=search_term)
-    filter_search.place(relx=0.5, rely=0.11, relwidth=0.45, relheight=0.06, anchor=ctk.CENTER)
 
     # Reset Search Bar and open Search Menu
     def add_book_initiator():
@@ -722,15 +744,13 @@ def book_collection(user):
     add_btn.place(relx=0.91, rely=0.895)
 
     # Log Out Button
-    logout_btn = ctk.CTkButton(main_frame, text="", text_color="#121212", fg_color="#1f1f1f", bg_color="#1f1f1f", hover_color="#2f2f2f", font=("Helvetica", h/24, "bold"), image=ctk.CTkImage(dark_image=Image.open(os.path.join(data_loc, "Images", "Log Out.png")), size=(30,30)), width=0, height=15, command=lambda: logout([tabs, add_btn, logout_btn]))
-    logout_btn.place(relx=0.933, rely=0.045)
-
-    # Custom Placeholder Text Method as in-built doesn't work
-    search_term.set("Enter Name or ISBN No. of the Book...")
-    filter_search.bind("<FocusIn>", lambda event: [filter_search.configure(text_color="#FFFFFF"), search_term.set("")])
+    logout_img = Image.open(os.path.join(data_loc, "Images", "Log Out.png"))
+    logout_btn = ctk.CTkButton(main_frame, text="", text_color="#121212", fg_color="#1f1f1f", bg_color="#1f1f1f", hover_color="#2f2f2f", font=("Helvetica", h/24, "bold"), image=ctk.CTkImage(dark_image=logout_img, size=(30,30)), width=0, height=15, command=lambda: logout([tabs, add_btn, logout_btn]))
+    logout_btn.place(relx=0.935, rely=0.045)
 
     win.update()
 
+    # Update Tab to Display the Books on Page 1 of Reading Tab
     update_tab([tabs, add_btn, logout_btn])
 
 # Add/Remove Books

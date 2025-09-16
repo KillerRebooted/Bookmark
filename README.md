@@ -18,7 +18,7 @@ Go to Releases on the Righ-Hand-Side and Download the Latest Version of the `.zi
 
 ## Usage/Examples
 
-Use the `Bookmark.py` to Run the Application
+Use the `Bookmark.exe` to Run the Application
 
 ### Sign Up
 
@@ -68,7 +68,7 @@ Once Logged In, whenever the Application is opened, it will open the last closed
 
 ![Logout Demo](https://github.com/KillerRebooted/Bookmark/blob/main/README%20Images/Logout%20Demo.png)
 
-To Logout, instead of pressing `Escape`, press the `Power Off` Icon in the top left and Press `Yes`. It will go back to the Login Page which can be closed using the `Escape` or the `Close` Button.
+To Logout, instead of pressing `Escape`, press the Red `Power Off` Icon in the top left and Press `Yes`. It will go back to the Login Page which can be closed using the `Escape` or the `Close` Button.
 
 ## Book API
 
