@@ -12,9 +12,17 @@ This Application is to help keep track of your Reading History.
 - Make Multiple Profiles
 - Display Overall Reading Stats
 
+## NOTE
+
+DON'T HAVE MULTIPLE INSTANCES OF THE APPLICATION DOWNLOADED ON THE SAME SYSTEM. RUNNING ANOTHER INSTANCE OF THE APPLICATION WHICH DOESN'T HAVE YOUR ACCOUNT MAY GET YOUR ACCOUNT DATA DELETED.
+
 ## Setup
 
 Go to Releases on the Righ-Hand-Side and Download the Latest Version of the `.zip` file. Extract the contents in a Folder and Run the Executable. Happy Reading!
+
+## Updating
+
+To Update the App, simply download the latest version of Bookmark and Extract it in the same folder where you originally installed the App. Replace the Files when it asks for it.
 
 ## Usage/Examples
 

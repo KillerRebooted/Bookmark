@@ -23,12 +23,18 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 # Path to Folder of the Application
+
+# Using different Service Names, so the Test Version and the Application don't interfere with each other.
 if getattr(sys, 'frozen', False):
     # If File Running as a bundled Executable
     application_path = os.path.dirname(sys.executable)
+    # Service Name under which User Credentials are saved
+    SERVICE_NAME = "Bookmark"
 else:
     # If File Running as a normal Script
     application_path = os.path.dirname(os.path.abspath(__file__))
+    # Service Name under which User Credentials are saved
+    SERVICE_NAME = "Bookmark-Test"
 
 data_loc = os.path.join(application_path, "Data")
 
@@ -37,9 +43,6 @@ sys.stdout = open(os.path.join(data_loc, "logs.txt"), "w+")
 
 # Create Accounts Folder if doesn't exist
 os.makedirs(os.path.join(data_loc, "Accounts"), exist_ok=True)
-
-# Service Name under which User Credentials are saved
-SERVICE_NAME = "Bookmark"
 
 win = ctk.CTk(fg_color="#121212")
 win.title("Login")
