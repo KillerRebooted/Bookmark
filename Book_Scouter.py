@@ -6,7 +6,7 @@ def get_language_name(code):
     language = pycountry.languages.get(alpha_2=code)
     return language.name if language else "Unknown"
 
-def get_book_details(search):
+def get_book_details(search, max_results=10):
 
     def get_details(response):
         
@@ -14,7 +14,7 @@ def get_book_details(search):
         try:
             response["items"]
         except:
-            return get_details(requests.get(f"https://www.googleapis.com/books/v1/volumes?q={search.replace(' ', '+')}").json())
+            return get_details(requests.get(f"https://www.googleapis.com/books/v1/volumes?q={search.replace(' ', '+')}&maxResults={max_results}").json())
 
         # Get useful details about the book from the response.json()
 
@@ -29,7 +29,8 @@ def get_book_details(search):
         categories = [book["volumeInfo"].get("categories", "") for book in resp]
         maturity_ratings = ["Intended for a Mature Audience" if book["volumeInfo"].get("maturityRating", "")=="MATURE" else "Suitable for All Ages" for book in resp]
         language = [get_language_name(book["volumeInfo"].get("language", "")) for book in resp]
-        thumbnails = [f"https://books.google.com/books/publisher/content/images/frontcover/{id}?fife=w1920-h1080&source=gbs_api" for id in ids]
+        thumbnails_low = [f"https://books.google.com/books/publisher/content/images/frontcover/{id}?fife=w352-h240&source=gbs_api" for id in ids]
+        thumbnails_high = [f"https://books.google.com/books/publisher/content/images/frontcover/{id}?fife=w1920-h1080&source=gbs_api" for id in ids]
 
         # Getting Page Count from Google Books API Website in case Response doesn't have it
         page_counts = []
@@ -69,12 +70,12 @@ def get_book_details(search):
 
         for i in range(len(titles)):
 
-            books.append({"title":titles[i], "id":ids[i], "authors":", ".join(authors[i]), "publisher":publishers[i], "publish_date":publish_dates[i], "description":descriptions[i], "isbn10":isbn10[i], "isbn13":isbn13[i], "page_count":page_counts[i], "categories":", ".join(categories[i]), "maturity_rating":maturity_ratings[i], "language":language[i], "thumbnail":thumbnails[i]})
+            books.append({"title":titles[i], "id":ids[i], "authors":", ".join(authors[i]), "publisher":publishers[i], "publish_date":publish_dates[i], "description":descriptions[i], "isbn10":isbn10[i], "isbn13":isbn13[i], "page_count":page_counts[i], "categories":", ".join(categories[i]), "maturity_rating":maturity_ratings[i], "language":language[i], "thumbnail_low":thumbnails_low[i], "thumbnail_high":thumbnails_high[i]})
 
         return books
 
     # Get Search Results assuming input is an ISBN Number
-    response = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{search.replace("-", "")}").json()
+    response = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{search.replace("-", "")}&maxResults={max_results}").json()
 
     return get_details(response)
 

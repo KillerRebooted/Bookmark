@@ -39,7 +39,8 @@ else:
 data_loc = os.path.join(application_path, "Data")
 
 # Store most recent Output (if exists), including Exceptions during Application Runtime or Crash
-sys.stdout = open(os.path.join(data_loc, "logs.txt"), "w+")
+if getattr(sys, 'frozen', False):
+    sys.stdout = open(os.path.join(data_loc, "logs.txt"), "w+")
 
 # Create Accounts Folder if doesn't exist
 os.makedirs(os.path.join(data_loc, "Accounts"), exist_ok=True)
@@ -377,29 +378,15 @@ def quit_add_books(frame, widgets):
         saved_widgets[0].configure(state="disabled")
 
     win.unbind("<Motion>")
-    for widget in frame.winfo_children():
-        widget.destroy()
 
-    # Frame Close Animation
-    size = 0.8
-    while size >= 0:
-        frame.place_configure(relwidth=size, relheight=size)
-        
-        win.update()
-        sleep(0.001)
-
-        size -= 0.04
-
-    size=0
-    frame.place_configure(relwidth=size, relheight=size)
-
-    frame.destroy()
+    frame._parent_frame.destroy()
     win.unbind("<Escape>")
 
     # Enabling Widgets on closing Search Window
     widgets[0].configure(state="normal")
     widgets[1].configure(state="normal", fg_color="#9a4cfa")
     widgets[2].configure(state="normal")
+    widgets[3].configure(state="normal")
     for widget in widgets[0].tab(widgets[0].get()).winfo_children():
         try:
             if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
@@ -420,6 +407,7 @@ def quit_logout_confirmation(logout_confirmation, widgets):
     widgets[0].configure(state="normal")
     widgets[1].configure(state="normal", fg_color="#9a4cfa")
     widgets[2].configure(state="normal")
+    widgets[3].configure(state="normal")
     for widget in widgets[0].tab(widgets[0].get()).winfo_children():
         try:
             if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
@@ -618,14 +606,14 @@ def book_collection(user):
                 page_var.set(1)
 
             else:
-                update_tab([tabs, add_btn, logout_btn], search_term=search_term)
+                update_tab([tabs, add_btn, logout_btn, filter_search], search_term=search_term)
 
                 new_page_count = int(page_var.get()) + change_qty
 
                 if new_page_count in range(1, int(total_pages[category].get())+1):
                     page_var.set(new_page_count)
 
-            update_tab([tabs, add_btn, logout_btn], search_term=search_term)
+            update_tab([tabs, add_btn, logout_btn, filter_search], search_term=search_term)
         except:
             pass
 
@@ -640,7 +628,7 @@ def book_collection(user):
                         segmented_button_unselected_color="#2a2a2a",
                         segmented_button_selected_hover_color="#b87bff",
                         segmented_button_unselected_hover_color="#393939",
-                        command=lambda: update_tab([tabs, add_btn, logout_btn], search_term))
+                        command=lambda: update_tab([tabs, add_btn, logout_btn, filter_search], search_term))
     tabs._segmented_button.configure(font=("Helvetica", h/45, "bold"))
     tabs.pack(padx=w/32, pady=h/54, fill="both", expand=True)
 
@@ -664,7 +652,7 @@ def book_collection(user):
 
     # Custom Placeholder Text Method as in-built doesn't work
     search_term.set("Enter Name or ISBN No. of the Book...")
-    filter_search.bind("<FocusIn>", lambda event: [filter_search.configure(text_color="#FFFFFF"), search_term.set("")])
+    filter_search.bind("<FocusIn>", lambda event: [filter_search.configure(text_color="#FFFFFF"), search_term.set(""), filter_search.unbind("<FocusIn>")])
 
     # Setting Up default Page Count and Total Pages for each tab
     page_counters = {tab_name:ctk.StringVar(value="1") for tab_name in all_tabs}
@@ -693,7 +681,7 @@ def book_collection(user):
     # Reset Search Bar and open Search Menu
     def add_book_initiator():
         # Open Add Book Menu
-        add_book([tabs, add_btn, logout_btn], book_collection_search_term=search_term)
+        add_book([tabs, add_btn, logout_btn, filter_search], book_collection_search_term=search_term)
 
     # Log Out Confirmation and Execution
     def logout(widgets):
@@ -704,6 +692,7 @@ def book_collection(user):
         widgets[0].configure(state="disabled")
         widgets[1].configure(state="disabled", fg_color="#3a3a3a", text_color_disabled="#777777")
         widgets[2].configure(state="disabled")
+        widgets[3].configure(state="disabled")
         for widget in widgets[0].tab(widgets[0].get()).winfo_children():
             try:
                 if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
@@ -748,13 +737,13 @@ def book_collection(user):
 
     # Log Out Button
     logout_img = Image.open(os.path.join(data_loc, "Images", "Log Out.png"))
-    logout_btn = ctk.CTkButton(main_frame, text="", text_color="#121212", fg_color="#1f1f1f", bg_color="#1f1f1f", hover_color="#2f2f2f", font=("Helvetica", h/24, "bold"), image=ctk.CTkImage(dark_image=logout_img, size=(30,30)), width=0, height=15, command=lambda: logout([tabs, add_btn, logout_btn]))
+    logout_btn = ctk.CTkButton(main_frame, text="", text_color="#121212", fg_color="#1f1f1f", bg_color="#1f1f1f", hover_color="#2f2f2f", font=("Helvetica", h/24, "bold"), image=ctk.CTkImage(dark_image=logout_img, size=(30,30)), width=0, height=15, command=lambda: logout([tabs, add_btn, logout_btn, filter_search]))
     logout_btn.place(relx=0.935, rely=0.045)
 
     win.update()
 
     # Update Tab to Display the Books on Page 1 of Reading Tab
-    update_tab([tabs, add_btn, logout_btn])
+    update_tab([tabs, add_btn, logout_btn, filter_search])
 
 # Add/Remove Books
 def add_book(widgets, book_collection_search_term=None, book=None, search=True):
@@ -766,6 +755,7 @@ def add_book(widgets, book_collection_search_term=None, book=None, search=True):
     widgets[0].configure(state="disabled")
     widgets[1].configure(state="disabled", fg_color="#3a3a3a", text_color_disabled="#777777")
     widgets[2].configure(state="disabled")
+    widgets[3].configure(state="disabled")
     for widget in widgets[0].tab(widgets[0].get()).winfo_children():
         try: 
             if ("label" not in str(widget)) and (widget.cget("text") in ["◀", "▶"]):
@@ -775,21 +765,11 @@ def add_book(widgets, book_collection_search_term=None, book=None, search=True):
         except:
             pass
 
-    search_frame = ctk.CTkFrame(win, bg_color="#1f1f1f", fg_color="#0f0f0f", corner_radius=h/27)
-    search_frame.place(relx=0.5, rely=0.5, relheight=0.1, relwidth=0.1, anchor=ctk.CENTER)
+    search_frame = ctk.CTkScrollableFrame(win, bg_color="#1f1f1f", fg_color="#0f0f0f", corner_radius=h/27)
+    search_frame.place(relx=0.5, rely=0.5, relheight=0.8, relwidth=0.8, anchor=ctk.CENTER)
 
-    # Frame Grow Animation
-    size = 0
-    while size <= 0.8:
-        search_frame.place_configure(relwidth=size, relheight=size)
-        
-        win.update()
-        sleep(0.008)
-
-        size += 0.06
-
-    size=0.8
-    search_frame.place_configure(relwidth=size, relheight=size)
+    for column in range(1, 6):
+        search_frame.grid_columnconfigure(column, weight=1)
 
     # Close Add Book Menu
     def escape_function(search_frame, book_collection_search_term):
@@ -804,12 +784,12 @@ def add_book(widgets, book_collection_search_term=None, book=None, search=True):
         search_term.trace_add('write', lambda var, index, mode: run_thread(search_frame, search_term))
 
         # Search Bar has no Placeholder Text since Textvariable used, a bug in CustomTkinter
-        search_bar = ctk.CTkEntry(search_frame, text_color="#818181", fg_color="#1f1f1f", textvariable=search_term)
-        search_bar.place(relx=0.48, rely=0.1, relwidth=0.45, relheight=0.06, anchor=ctk.CENTER)
+        search_bar = ctk.CTkEntry(search_frame, text_color="#818181", fg_color="#1f1f1f", width=400, height=45, textvariable=search_term, font=("Helvetica", h/62, "bold"))
+        search_bar.grid(row=1, column=1, columnspan=5, pady=(10, 20))
 
         # Custom Placeholder Text Method as in-built doesn't work
         search_term.set("Enter Name or ISBN No. of the Book...")
-        search_bar.bind("<FocusIn>", lambda event: [search_bar.configure(text_color="#FFFFFF"), search_term.set("")])
+        search_bar.bind("<FocusIn>", lambda event: [search_bar.configure(text_color="#FFFFFF"), search_term.set(""), search_bar.unbind("<FocusIn>")])
 
         saved_widgets = [search_bar]
 
@@ -851,13 +831,14 @@ def update_search(search_frame, search_term):
         return
 
     # Get Recommendations based on Search Term
-    recommendations = get_book_details(search_text)
+    recommendations = get_book_details(search_text, max_results=10)
 
     list_of_recommendations = []
     def load_recommendation(book):
         
         try:
-            with urllib.request.urlopen(book["thumbnail"]) as u:
+
+            with urllib.request.urlopen(book["thumbnail_low"]) as u:
                 raw_data = u.read()
 
             # Replace Default "No Image Found" with provided one
@@ -865,23 +846,21 @@ def update_search(search_frame, search_term):
                 image = create_rounded_image(os.path.join(data_loc, "Images", "No Image Found.png"), 35)
             else:
                 image = create_rounded_image(io.BytesIO(raw_data), 35)
-
+            
             recommendation = ctk.CTkButton(search_frame, text=book["title"][:search_page_cap], font=("Helvetica", h/65, "bold"), image=ctk.CTkImage(dark_image=image, size=(w/8.53, h/4.32)), fg_color="#0f0f0f", hover_color="#1f1f1f", compound=ctk.TOP, anchor="w", width=w/8.53 + 25, height=h/4.32 + 65, command=lambda book=book: get_book(search_frame, book, search_term))
             recommendation.bind("<Enter>", lambda event, recommendation=recommendation: start_marquee(False, recommendation, book["title"]+"      ", speed=150))
             recommendation.bind("<Leave>", lambda event, recommendation=recommendation: stop_marquee(False, recommendation, book["title"]))
-            try:
-                thread = threading.Thread(target=lambda search_text=search_text: kill_recommendation(recommendation, search_term, search_text))
-                thread.start()
+            
+            thread = threading.Thread(target=lambda search_text=search_text: kill_recommendation(recommendation, search_term, search_text))
+            thread.start()
 
-                list_of_recommendations.append(recommendation)
+            list_of_recommendations.append(recommendation)
 
-            except:
-                pass
         except:
             try:
                 recommendation.destroy()
             except:
-                pass
+                pass    
 
     # Use Threading to Load Recommendations Simultaneously
 
@@ -902,20 +881,17 @@ def update_search(search_frame, search_term):
             widget.destroy()
 
     # Place Recommendations in Grid
-
     iteration = 0
-    relative_y = 0.2
-
     try:
         for recommendation in list_of_recommendations:
 
             if iteration % 5 == 0:
-                recommendation.place(in_=search_frame, relx=0.03, rely=relative_y, relwidth=0.16, relheight=0.35)
-                relative_y = 0.6
+                padding_x = (22, 15)
             else:
-                recommendation.place(in_=prev_recommendation, relx=1.2, rely=0, relwidth=1, relheight=1)
+                padding_x = 15
 
-            prev_recommendation = recommendation
+            recommendation.grid(row=iteration//5+2, column=iteration%5+1, padx=padding_x, pady=10)
+
             iteration += 1
     
     except:
@@ -928,7 +904,7 @@ def get_book(search_frame, book, search_term=None):
     if search_term:
         search_term.set("")
 
-        with urllib.request.urlopen(book["thumbnail"]) as u:
+        with urllib.request.urlopen(book["thumbnail_high"]) as u:
             raw_data = u.read()
     else:
         raw_data = book["thumbnail"]
@@ -946,17 +922,19 @@ def get_book(search_frame, book, search_term=None):
         if widget not in saved_widgets:
             widget.destroy()
     
+    image_size = (w/100 * 20, h/100 * 40)
+
     # Placeholder for the Image of the Book
-    bg = ctk.CTkLabel(search_frame, text="", fg_color="#0f0f0f")
-    
+    bg = ctk.CTkLabel(search_frame, text="", fg_color="#0f0f0f", width=image_size[0], height=h/100 * 55)
+
     # To check whether this function is being used by the Search Method or just to see a Saved Book. Place everything slightly higher in absence of the Search Bar
     if search_term:
-        bg.place(relx=0.05, rely=0.25, relwidth=0.22, relheight=0.5)
+        bg.grid(row=2, column=1, padx=(w/102.4,0), pady=(h/14,0))
     else:
-        bg.place(relx=0.05, rely=0.2, relwidth=0.22, relheight=0.5)
+        bg.grid(row=0, column=1, padx=(w/102.4,0), pady=(h/8, 0))
 
-    image = ctk.CTkLabel(search_frame, text="", image=ctk.CTkImage(dark_image=enhanced_image, size=(search_frame.winfo_width()/100 * 25, search_frame.winfo_height()/100 * 50)))
-    image.place(in_=bg, relx=0, rely=0, relwidth=1, relheight=1)
+    image = ctk.CTkLabel(search_frame, text="", anchor="n", image=ctk.CTkImage(dark_image=enhanced_image, size=image_size))
+    image.place(in_=bg, relx=-0.25, rely=0, relwidth=1, relheight=0.72)
 
     details_order = {"title":"Title", "authors":"Author(s)", "language":"Language", "isbn10":"ISBN-10", "isbn13":"ISBN-13", "publisher":"Publisher", "publish_date":"Publish Date", "categories": "Categories", "page_count":"Pages", "description":"Description", "maturity_rating":"Maturity Rating"}
 
@@ -972,20 +950,20 @@ def get_book(search_frame, book, search_term=None):
     text_widget = ctk.CTkTextbox(search_frame, font=("Helvetica", h/67.5, "bold"), fg_color="#0f0f0f", wrap=ctk.WORD)
     text_widget.insert(ctk.END, text)
     text_widget.configure(state=ctk.DISABLED)
-    text_widget.place(in_=bg, relx=1.2, rely=0, relheight=1.4, relwidth=3)
+    text_widget.place(in_=bg, relx=1, rely=0, relheight=1, relwidth=2.4)
 
     # Display Buttons if hovering over the Image
     def check_hover(event):
-        if (win.winfo_pointerx() > bg.winfo_rootx()) and (win.winfo_pointerx() < bg.winfo_rootx()+bg.winfo_width()) and (win.winfo_pointery() > bg.winfo_rooty()) and (win.winfo_pointery() < bg.winfo_rooty()+bg.winfo_height()):
+        if (win.winfo_pointerx() > image.winfo_rootx()) and (win.winfo_pointerx() < image.winfo_rootx()+image.winfo_width()) and (win.winfo_pointery() > image.winfo_rooty()) and (win.winfo_pointery() < image.winfo_rooty()+image.winfo_height()):
             enhanced_image = image_enhancer.enhance(0.5)
-            image.configure(image=ctk.CTkImage(dark_image=enhanced_image, size=(search_frame.winfo_width()/100 * 25, search_frame.winfo_height()/100 * 50)))
+            image.configure(image=ctk.CTkImage(dark_image=enhanced_image, size=image_size))
 
             new_properties = False
 
-            prev_widget = bg
+            prev_widget = image
             for widget in place_order:
-                if not new_properties: widget.place(in_=prev_widget, relx=0.2, rely=0.12, relheight=0.1, relwidth=0.65)
-                else: widget.place(in_=prev_widget, relx=0, rely=1.35, relheight=1, relwidth=1)
+                if not new_properties: widget.place(in_=prev_widget, relx=0.2, rely=0.1, relheight=0.1, relwidth=0.65)
+                else: widget.place(in_=prev_widget, relx=0, rely=1.4, relheight=1, relwidth=1)
                 prev_widget = widget
                 new_properties = True
         
@@ -995,7 +973,7 @@ def get_book(search_frame, book, search_term=None):
                 widget.place_forget()
             
             enhanced_image = image_enhancer.enhance(1)
-            image.configure(image=ctk.CTkImage(dark_image=enhanced_image, size=(search_frame.winfo_width()/100 * 25, search_frame.winfo_height()/100 * 50)))
+            image.configure(image=ctk.CTkImage(dark_image=enhanced_image, size=image_size))
 
     # Perform Actions based on Button Pressed
     def button_action(btn, var):
