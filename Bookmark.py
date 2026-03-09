@@ -831,7 +831,7 @@ def update_search(search_frame, search_term):
         return
 
     # Get Recommendations based on Search Term
-    recommendations = get_book_details(search_text, max_results=10)
+    recommendations = get_book_details(search_text, max_results=30)
 
     list_of_recommendations = []
     def load_recommendation(book):
